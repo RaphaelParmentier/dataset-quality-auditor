@@ -14,10 +14,20 @@ def save_missing_values_chart(df: pd.DataFrame, output_path: str | Path) -> Path
 
     if missing_values.empty:
         return output_path
-
-    plt.figure(figsize=(8, 5))
-    missing_values.plot(kind="bar")
-    plt.title("Missing values by column")
+    plt.style.use("dark_background")
+    plt.figure(figsize=(10, 6))
+    ax = missing_values.plot(
+        kind="bar",
+        color="#F97316",
+        edgecolor="white",
+    )   
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    plt.title(
+        "Missing Values by Column",
+        fontsize=16,
+        pad=20,
+    )
     plt.xlabel("Column")
     plt.ylabel("Missing values")
     plt.tight_layout()
