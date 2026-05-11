@@ -1,22 +1,13 @@
 import pandas as pd
 
 from src.data_quality import run_data_quality_checks
+from src.report_generator import generate_markdown_report, save_markdown_report
 
-df = pd.read_csv("data/sample_custumers.csv")
+df = pd.read_csv("data/sample_customers.csv")
 
-report = run_data_quality_checks(df)
+quality_report = run_data_quality_checks(df)
+markdown_report = generate_markdown_report(quality_report)
 
-print("DATASET OVERVIEW")
-print(report["overview"])
+output_path = save_markdown_report(markdown_report, "outputs/report.md")
 
-print("\nMISSING VALUES")
-print(report["missing_values"])
-
-print("\nDUPLICATES")
-print(report["duplicates"])
-
-print("\nCONSTANT COLUMNS")
-print(report["constant_columns"])
-
-print("\nCOLUMN TYPES")
-print(report["column_types"])
+print(f"Report generated: {output_path}")
