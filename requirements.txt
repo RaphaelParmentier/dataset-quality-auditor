@@ -4,3 +4,4 @@ matplotlib
 scikit-learn
 python-dotenv
 tabulate
+jinja2
