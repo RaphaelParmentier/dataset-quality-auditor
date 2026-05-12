@@ -15,6 +15,18 @@ app = FastAPI(
 )
 
 
+def get_valid_filename(file: UploadFile) -> str:
+    filename = file.filename
+
+    if not filename:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded file must have a filename.",
+        )
+
+    return filename
+
+
 @app.get("/")
 def healthcheck():
     return {
@@ -26,9 +38,10 @@ def healthcheck():
 @app.post("/sheets")
 async def list_excel_sheets(file: UploadFile = File(...)):
     content = await file.read()
+    filename = get_valid_filename(file)
 
     try:
-        file_type = get_file_type(file.filename)
+        file_type = get_file_type(filename)
 
         if file_type != "excel":
             return {
@@ -55,11 +68,12 @@ async def preview_file(
     encoding: str = Form(default="utf-8"),
 ):
     content = await file.read()
+    filename = get_valid_filename(file)
 
     try:
         df = load_dataset(
             content=content,
-            filename=file.filename,
+            filename=filename,
             sheet_name=sheet_name,
             skiprows=skiprows,
             separator=separator,
@@ -81,11 +95,12 @@ async def analyze_dataset(
     encoding: str = Form(default="utf-8"),
 ):
     content = await file.read()
+    filename = get_valid_filename(file)
 
     try:
         df = load_dataset(
             content=content,
-            filename=file.filename,
+            filename=filename,
             sheet_name=sheet_name,
             skiprows=skiprows,
             separator=separator,

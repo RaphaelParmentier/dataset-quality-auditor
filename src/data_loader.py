@@ -58,22 +58,70 @@ def load_dataset(
     )
 
 
-def preview_dataset(
-    df: pd.DataFrame,
-    n_rows: int = 5,
-) -> dict[str, Any]:
-    """Generate lightweight dataset preview."""
+def preview_dataset(df):
+    total_cells = df.shape[0] * df.shape[1]
+    missing_cells = int(df.isna().sum().sum())
+
+    columns_summary = []
+    warnings = []
+
+    for column in df.columns:
+        missing_count = int(df[column].isna().sum())
+        missing_rate = round((missing_count / len(df)) * 100, 2) if len(df) > 0 else 0
+        unique_count = int(df[column].nunique(dropna=True))
+
+        columns_summary.append(
+            {
+                "name": str(column),
+                "dtype": str(df[column].dtype),
+                "missing_values": missing_count,
+                "missing_rate_percent": missing_rate,
+                "unique_values": unique_count,
+            }
+        )
+
+        if missing_rate > 30:
+            warnings.append(
+                f"Column '{column}' has a high missing value rate ({missing_rate}%)."
+            )
+
+        if unique_count == 1:
+            warnings.append(
+                f"Column '{column}' contains only one unique value."
+            )
+
+    duplicated_rows = int(df.duplicated().sum())
+
+    if duplicated_rows > 0:
+        warnings.append(f"{duplicated_rows} duplicated rows detected.")
+
+    empty_columns = [str(col) for col in df.columns if df[col].isna().all()]
+
+    if empty_columns:
+        warnings.append(
+            f"Fully empty columns detected: {', '.join(empty_columns)}."
+        )
+
     return {
-        "n_rows": int(df.shape[0]),
-        "n_columns": int(df.shape[1]),
-        "columns": list(df.columns),
-        "preview": df.head(n_rows).fillna("").to_dict(orient="records"),
+        "status": "success",
+        "dataset_info": {
+            "rows": int(df.shape[0]),
+            "columns": int(df.shape[1]),
+            "total_cells": int(total_cells),
+            "missing_cells": missing_cells,
+            "missing_cells_rate_percent": round(
+                (missing_cells / total_cells) * 100, 2
+            )
+            if total_cells > 0
+            else 0,
+            "duplicated_rows": duplicated_rows,
+        },
+        "columns_summary": columns_summary,
+        "warnings": warnings,
+        "preview": df.head(10).where(df.notna(), None).to_dict(orient="records"),
     }
 
 
-def get_available_excel_sheets(
-    content: bytes,
-) -> list[str]:
-    """Return available sheet names for an Excel file."""
+def get_available_excel_sheets(content: bytes) -> list[str]:
     excel_file = pd.ExcelFile(BytesIO(content))
-    return excel_file.sheet_names
+    return [str(sheet_name) for sheet_name in excel_file.sheet_names]
