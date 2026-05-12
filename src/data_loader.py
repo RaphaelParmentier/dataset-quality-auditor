@@ -92,17 +92,10 @@ def preview_dataset(
         else 0
     )
 
-    preview_records = [
-        {
-            str(column): to_json_safe(value)
-            for column, value in row.items()
-        }
-        for row in df.head(10).to_dict(orient="records")
-    ]
-
     columns_summary = []
     warnings = []
     suggestions = []
+    recommended_actions = []
 
     for column in df.columns:
         missing_count = int(df[column].isna().sum())
@@ -152,6 +145,18 @@ def preview_dataset(
         suggestions.append(
             "Essayez un autre séparateur, par exemple ';' au lieu de ','."
         )
+        recommended_actions.append(
+            {
+                "label": "Changer le séparateur CSV",
+                "parameter": "separator",
+                "current_value": separator,
+                "recommended_value": ";",
+                "reason": (
+                    "Une seule colonne a été détectée. "
+                    "Le fichier utilise probablement un autre séparateur."
+                ),
+            }
+        )
 
     if any(str(column).startswith("Unnamed") for column in df.columns):
         warnings.append(
@@ -161,12 +166,38 @@ def preview_dataset(
             "Vérifiez si le fichier contient des lignes d'en-tête inutiles. "
             "Essayez éventuellement skiprows=1 ou skiprows=2."
         )
+        recommended_actions.append(
+            {
+                "label": "Ignorer des lignes d'en-tête",
+                "parameter": "skiprows",
+                "current_value": skiprows,
+                "recommended_value": skiprows + 1,
+                "reason": (
+                    "Certaines colonnes semblent mal nommées ou générées automatiquement."
+                ),
+            }
+        )
 
     if row_count == 0:
         warnings.append("Le fichier ne contient aucune ligne de données exploitable.")
         suggestions.append(
             "Vérifiez la feuille Excel sélectionnée, le séparateur CSV ou le paramètre skiprows."
         )
+
+    quality_score = 100
+
+    if missing_rate >= 5:
+        quality_score -= 15
+    if missing_rate >= 20:
+        quality_score -= 20
+    if duplicated_rows > 0:
+        quality_score -= 10
+    if column_count == 1 and filename.lower().endswith(".csv"):
+        quality_score -= 30
+    if empty_columns:
+        quality_score -= 20
+
+    quality_score = max(0, quality_score)
 
     if not warnings:
         global_status = "ok"
@@ -175,18 +206,40 @@ def preview_dataset(
         global_status = "warning"
         global_message = "Le fichier est chargé, mais certains points doivent être vérifiés."
 
+    preview_table = [
+        {
+            str(column): to_json_safe(value)
+            for column, value in row.items()
+        }
+        for row in df.head(10).to_dict(orient="records")
+    ]
+
     user_report = [
         {
             "question": "Le fichier est-il chargé correctement ?",
             "answer": global_message,
             "status": global_status,
-            "suggestion": None if global_status == "ok" else "Consultez les alertes ci-dessous.",
+            "suggestion": (
+                None
+                if global_status == "ok"
+                else "Consultez les alertes et les actions recommandées."
+            ),
         },
         {
             "question": "Combien de données ont été détectées ?",
             "answer": f"{row_count} lignes et {column_count} colonnes.",
             "status": "ok" if row_count > 0 and column_count > 0 else "error",
             "suggestion": None,
+        },
+        {
+            "question": "Quel est le score qualité du fichier ?",
+            "answer": f"{quality_score}/100",
+            "status": "ok" if quality_score >= 80 else "warning",
+            "suggestion": (
+                None
+                if quality_score >= 80
+                else "Corrigez les alertes prioritaires avant de lancer une analyse complète."
+            ),
         },
         {
             "question": "Les valeurs manquantes sont-elles problématiques ?",
@@ -208,20 +261,13 @@ def preview_dataset(
                 else "Vérifiez si ces doublons doivent être supprimés avant analyse."
             ),
         },
-        {
-            "question": "Quels paramètres de lecture ont été utilisés ?",
-            "answer": (
-                f"encoding={encoding}, separator={separator}, "
-                f"skiprows={skiprows}, sheet_name={sheet_name}"
-            ),
-            "status": "info",
-            "suggestion": suggestions[0] if suggestions else None,
-        },
     ]
 
     return {
         "status": global_status,
+        "quality_score": quality_score,
         "user_report": user_report,
+        "recommended_actions": recommended_actions,
         "suggestions": suggestions,
         "warnings": warnings,
         "read_parameters": {
@@ -240,7 +286,7 @@ def preview_dataset(
             "duplicated_rows": duplicated_rows,
         },
         "columns_summary": columns_summary,
-        "preview_table": preview_records,
+        "preview_table": preview_table,
     }
 
 

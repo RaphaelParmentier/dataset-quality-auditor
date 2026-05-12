@@ -80,11 +80,17 @@ async def preview_file(
             encoding=encoding,
         )
 
-        return preview_dataset(df)
+        return preview_dataset(
+            df=df,
+            filename=filename,
+            separator=separator,
+            encoding=encoding,
+            skiprows=skiprows,
+            sheet_name=sheet_name,
+        )
 
     except Exception as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
-
 
 @app.post("/analyze")
 async def analyze_dataset(
