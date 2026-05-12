@@ -5,3 +5,7 @@ scikit-learn
 python-dotenv
 tabulate
 jinja2
+fastapi
+uvicorn
+python-multipart
+openpyxl
