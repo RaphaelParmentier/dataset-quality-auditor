@@ -12,7 +12,7 @@ from src.data_quality import run_data_quality_checks
 
 app = FastAPI(
     title="AI Data Report Generator API",
-    version="0.2.0",
+    version="0.3.0",
 )
 
 app.add_middleware(
@@ -39,11 +39,30 @@ def get_valid_filename(file: UploadFile) -> str:
     return filename
 
 
+def load_uploaded_dataset(
+    content: bytes,
+    filename: str,
+    sheet_name: str | None,
+    skiprows: int,
+    separator: str,
+    encoding: str,
+):
+    return load_dataset(
+        content=content,
+        filename=filename,
+        sheet_name=sheet_name,
+        skiprows=skiprows,
+        separator=separator,
+        encoding=encoding,
+    )
+
+
 @app.get("/")
 def healthcheck():
     return {
         "status": "ok",
         "service": "AI Data Report Generator API",
+        "version": app.version,
     }
 
 
@@ -96,7 +115,7 @@ async def preview_file(
     filename = get_valid_filename(file)
 
     try:
-        df = load_dataset(
+        df = load_uploaded_dataset(
             content=content,
             filename=filename,
             sheet_name=sheet_name,
@@ -138,7 +157,7 @@ async def analyze_dataset(
     filename = get_valid_filename(file)
 
     try:
-        df = load_dataset(
+        df = load_uploaded_dataset(
             content=content,
             filename=filename,
             sheet_name=sheet_name,
@@ -147,9 +166,18 @@ async def analyze_dataset(
             encoding=encoding,
         )
 
-        report = run_data_quality_checks(df)
+        quality_report = run_data_quality_checks(df)
 
-        return report
+        return {
+            "filename": filename,
+            "sheet_name": sheet_name,
+            "loading_options": {
+                "separator": separator,
+                "encoding": encoding,
+                "skiprows": skiprows,
+            },
+            "analysis": quality_report,
+        }
 
     except Exception as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
