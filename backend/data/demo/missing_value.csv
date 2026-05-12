@@ -1,0 +1,4 @@
+id,name,email,country,revenue
+1,Alice,,FR,1200
+2,Bob,bob@email.com,,980
+3,,,DE,

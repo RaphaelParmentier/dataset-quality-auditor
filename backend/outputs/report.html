@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Data Quality Report</title>
+
+  <style>
+    body {
+      background-color: #070B14;
+      color: #F8FAFC;
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      line-height: 1.6;
+    }
+
+    h1, h2 {
+      color: #F97316;
+    }
+
+    .card {
+      background: #0F172A;
+      border: 1px solid #1E293B;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    th, td {
+      border: 1px solid #334155;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #1E293B;
+    }
+
+    img {
+      margin-top: 20px;
+      max-width: 100%;
+      border-radius: 12px;
+    }
+
+    .metric {
+      font-size: 20px;
+      font-weight: bold;
+      color: #F97316;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>AI Data Quality Report</h1>
+
+  <div class="card">
+    <h2>Dataset Overview</h2>
+
+    <p><span class="metric">8</span> rows</p>
+    <p><span class="metric">6</span> columns</p>
+    <p>Memory usage: 0.001 MB</p>
+  </div>
+
+  <div class="card">
+    <h2>Missing Values</h2>
+
+    <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>column</th>
+      <th>missing_count</th>
+      <th>missing_percent</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>age</td>
+      <td>1</td>
+      <td>12.5</td>
+    </tr>
+    <tr>
+      <td>revenue</td>
+      <td>1</td>
+      <td>12.5</td>
+    </tr>
+    <tr>
+      <td>signup_channel</td>
+      <td>1</td>
+      <td>12.5</td>
+    </tr>
+    <tr>
+      <td>customer_id</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>city</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>is_active</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+
+    <img src="../outputs/missing_values.png" />
+  </div>
+
+  <div class="card">
+    <h2>Duplicate Rows</h2>
+
+    <p>Duplicate count: 0</p>
+    <p>Duplicate percentage: 0.0%</p>
+  </div>
+
+</body>
+</html>

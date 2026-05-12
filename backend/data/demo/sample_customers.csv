@@ -1,0 +1,9 @@
+customer_id,age,city,revenue,signup_channel,is_active
+1,34,Paris,1200,LinkedIn,true
+2,28,Lyon,850,Google,true
+3,45,Paris,2300,Referral,false
+4,,Marseille,670,Google,true
+5,34,Paris,1200,LinkedIn,true
+6,52,Bordeaux,,Referral,false
+7,28,Lyon,920,Google,true
+8,39,Nantes,1100,,true
