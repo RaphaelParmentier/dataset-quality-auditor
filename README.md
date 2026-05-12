@@ -61,3 +61,43 @@ ai-data-report-generator/
 ├── .gitignore
 ├── README.md
 └── requirements.txt
+
+## Portfolio case study
+
+### AI Data Report Generator
+
+This project demonstrates how a structured dataset can be automatically transformed into a readable analytical report.
+
+The pipeline currently performs:
+
+- CSV data loading
+- dataset overview generation
+- missing value diagnostics
+- duplicate row detection
+- column type profiling
+- Markdown report generation
+- styled HTML report generation
+- automated visualization export
+
+### Technical value
+
+This project showcases:
+
+- modular Python architecture
+- reproducible environment setup
+- deterministic data quality checks
+- reporting automation
+- clean Git workflow
+- preparation for future AI-assisted analysis
+
+### Next iterations
+
+Planned improvements include:
+
+- richer profiling indicators
+- additional visual diagnostics
+- PDF export
+- CLI interface
+- FastAPI backend
+- optional LLM-generated executive summaries
+- portfolio integration as an interactive case study
