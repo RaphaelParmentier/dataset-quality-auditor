@@ -1,5 +1,3 @@
-# src/data_loader.py
-
 from __future__ import annotations
 
 from io import BytesIO, StringIO
@@ -9,7 +7,30 @@ from typing import Any
 import pandas as pd
 
 
-SUPPORTED_EXTENSIONS = {".csv", ".xlsx", ".xls"}
+SUPPORTED_CSV_EXTENSIONS = {".csv"}
+SUPPORTED_EXCEL_EXTENSIONS = {".xlsx", ".xls"}
+SUPPORTED_EXTENSIONS = SUPPORTED_CSV_EXTENSIONS | SUPPORTED_EXCEL_EXTENSIONS
+
+
+def get_file_extension(filename: str) -> str:
+    """Return normalized file extension."""
+    return Path(filename).suffix.lower()
+
+
+def get_file_type(filename: str) -> str:
+    """Return supported file type based on extension."""
+    extension = get_file_extension(filename)
+
+    if extension in SUPPORTED_CSV_EXTENSIONS:
+        return "csv"
+
+    if extension in SUPPORTED_EXCEL_EXTENSIONS:
+        return "excel"
+
+    raise ValueError(
+        f"Unsupported file extension: {extension}. "
+        f"Supported extensions are: {', '.join(sorted(SUPPORTED_EXTENSIONS))}."
+    )
 
 
 def load_dataset(
@@ -20,16 +41,10 @@ def load_dataset(
     separator: str = ",",
     encoding: str = "utf-8",
 ) -> pd.DataFrame:
-    """Load a tabular dataset from CSV or Excel content."""
-    extension = Path(filename).suffix.lower()
+    """Load a dataset from CSV or Excel content."""
+    file_type = get_file_type(filename)
 
-    if extension not in SUPPORTED_EXTENSIONS:
-        raise ValueError(
-            f"Unsupported file extension: {extension}. "
-            f"Supported extensions are: {', '.join(SUPPORTED_EXTENSIONS)}"
-        )
-
-    if extension == ".csv":
+    if file_type == "csv":
         return pd.read_csv(
             StringIO(content.decode(encoding)),
             sep=separator,
@@ -43,11 +58,22 @@ def load_dataset(
     )
 
 
-def preview_dataset(df: pd.DataFrame, n_rows: int = 5) -> dict[str, Any]:
-    """Return a lightweight preview of the dataset."""
+def preview_dataset(
+    df: pd.DataFrame,
+    n_rows: int = 5,
+) -> dict[str, Any]:
+    """Generate lightweight dataset preview."""
     return {
         "n_rows": int(df.shape[0]),
         "n_columns": int(df.shape[1]),
         "columns": list(df.columns),
         "preview": df.head(n_rows).fillna("").to_dict(orient="records"),
     }
+
+
+def get_available_excel_sheets(
+    content: bytes,
+) -> list[str]:
+    """Return available sheet names for an Excel file."""
+    excel_file = pd.ExcelFile(BytesIO(content))
+    return excel_file.sheet_names
