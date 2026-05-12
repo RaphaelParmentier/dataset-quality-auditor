@@ -66,12 +66,7 @@ def healthcheck():
     }
 
 
-@app.post(
-    "/sheets",
-    summary="List Excel sheets",
-    description="Return available sheet names from an uploaded Excel file.",
-    tags=["Dataset Inspection"],
-)
+@app.post("/sheets", tags=["Dataset Inspection"])
 async def list_excel_sheets(file: UploadFile = File(...)):
     content = await file.read()
     filename = get_valid_filename(file)
@@ -95,15 +90,7 @@ async def list_excel_sheets(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail=str(error)) from error
 
 
-@app.post(
-    "/preview",
-    summary="Preview dataset structure",
-    description=(
-        "Upload a CSV or Excel file to inspect its structure, "
-        "detect potential issues and receive loading recommendations."
-    ),
-    tags=["Dataset Inspection"],
-)
+@app.post("/preview", tags=["Dataset Inspection"])
 async def preview_file(
     file: UploadFile = File(...),
     sheet_name: str | None = Form(default=None),
@@ -137,15 +124,7 @@ async def preview_file(
         raise HTTPException(status_code=400, detail=str(error)) from error
 
 
-@app.post(
-    "/analyze",
-    summary="Run dataset quality analysis",
-    description=(
-        "Run a complete data quality analysis including missing values, "
-        "duplicates, column types and quality scoring."
-    ),
-    tags=["Dataset Analysis"],
-)
+@app.post("/analyze", tags=["Dataset Analysis"])
 async def analyze_dataset(
     file: UploadFile = File(...),
     sheet_name: str | None = Form(default=None),
