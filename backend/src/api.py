@@ -1,4 +1,5 @@
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.data_loader import (
     get_available_excel_sheets,
@@ -12,6 +13,17 @@ from src.data_quality import run_data_quality_checks
 app = FastAPI(
     title="AI Data Report Generator API",
     version="0.2.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -105,6 +117,7 @@ async def preview_file(
     except Exception as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
 
+
 @app.post(
     "/analyze",
     summary="Run dataset quality analysis",
@@ -133,6 +146,7 @@ async def analyze_dataset(
             separator=separator,
             encoding=encoding,
         )
+
         report = run_data_quality_checks(df)
 
         return report
