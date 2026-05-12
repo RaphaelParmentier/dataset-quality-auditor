@@ -1,4 +1,5 @@
 "use client";
+import { postFormData } from "@/lib/api";
 
 import { useState } from "react";
 import {
@@ -21,6 +22,17 @@ import {
   Pie,
   Cell,
 } from "recharts";
+
+type AnalyzeApiResponse = {
+  filename: string;
+  sheet_name: string | null;
+  loading_options: {
+    separator: string;
+    encoding: string;
+    skiprows: number;
+  };
+  analysis: AnalyzeResponse;
+};
 
 type UserReportItem = {
   question: string;
@@ -121,17 +133,11 @@ export default function Home() {
     setAnalysis(null);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/preview", {
-        method: "POST",
-        body: buildFormData(),
-      });
+      const data = await postFormData<PreviewResponse>(
+        "/preview",
+        buildFormData()
+      );
 
-      if (!response.ok) {
-        const payload = await response.json();
-        throw new Error(payload.detail ?? "Erreur API inconnue.");
-      }
-
-      const data = await response.json();
       setPreview(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur inconnue.");
@@ -146,18 +152,12 @@ export default function Home() {
     setAnalysis(null);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/analyze", {
-        method: "POST",
-        body: buildFormData(),
-      });
+      const data = await postFormData<AnalyzeApiResponse>(
+        "/analyze",
+        buildFormData()
+      );
 
-      if (!response.ok) {
-        const payload = await response.json();
-        throw new Error(payload.detail ?? "Erreur API inconnue.");
-      }
-
-      const data = await response.json();
-      setAnalysis(data);
+      setAnalysis(data.analysis);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur inconnue.");
     } finally {
@@ -170,10 +170,10 @@ export default function Home() {
     : [];
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100">
+    <main className="min-h-screen bg-[#090909] text-neutral-100">
       <section className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-10">
         <header className="flex flex-col gap-4">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200">
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-orange-400/30 bg-orange-400/10 px-4 py-2 text-sm text-orange-200">
             <Sparkles className="h-4 w-4" />
             AI Data Report Generator
           </div>
@@ -190,14 +190,14 @@ export default function Home() {
         </header>
 
         <section className="grid gap-6 lg:grid-cols-[420px_1fr]">
-          <aside className="h-fit rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl">
+          <aside className="h-fit rounded-2xl border border-white/10 bg-white/[0.03] p-6 shadow-2xl">
             <h2 className="text-xl font-medium">Dataset upload</h2>
             <p className="mt-2 text-sm text-slate-400">
               Utilise un fichier de démonstration ou ton propre dataset.
             </p>
 
-            <label className="mt-6 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-700 bg-slate-950/60 p-8 text-center transition hover:border-cyan-400/60 hover:bg-cyan-400/5">
-              <Upload className="mb-3 h-8 w-8 text-cyan-300" />
+            <label className="mt-6 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-700 bg-slate-950/60 p-8 text-center transition hover:border-orange-400/60 hover:bg-orange-400/5">
+              <Upload className="mb-3 h-8 w-8 text-orange-300" />
               <span className="text-sm font-medium">
                 {file ? file.name : "Choisir un fichier CSV / Excel"}
               </span>
@@ -226,7 +226,7 @@ export default function Home() {
                   type="number"
                   value={skiprows}
                   onChange={(event) => setSkiprows(Number(event.target.value))}
-                  className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-cyan-400"
+                  className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-orange-400"
                 />
               </div>
             </div>
@@ -234,7 +234,7 @@ export default function Home() {
             <button
               onClick={handlePreview}
               disabled={previewLoading}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-400 px-5 py-3 font-medium text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-orange-400 px-5 py-3 font-medium text-slate-950 transition hover:bg-orange-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {previewLoading && <Loader2 className="h-4 w-4 animate-spin" />}
               {previewLoading ? "Prévisualisation..." : "Preview dataset"}
@@ -243,7 +243,7 @@ export default function Home() {
             <button
               onClick={handleAnalyze}
               disabled={analysisLoading || !preview}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-950 px-5 py-3 font-medium text-slate-100 transition hover:border-cyan-400 disabled:cursor-not-allowed disabled:opacity-40"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-950 px-5 py-3 font-medium text-slate-100 transition hover:border-orange-400 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {analysisLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -291,7 +291,7 @@ export default function Home() {
                         <div key={action.label} className="rounded-2xl bg-slate-950/70 p-4">
                           <p className="font-medium">{action.label}</p>
                           <p className="mt-1 text-sm text-slate-300">{action.reason}</p>
-                          <p className="mt-2 text-sm text-cyan-300">
+                          <p className="mt-2 text-sm text-orange-300">
                             {action.parameter}: {String(action.current_value)} →{" "}
                             {String(action.recommended_value)}
                           </p>
@@ -385,7 +385,7 @@ export default function Home() {
                                 <p className="mt-1 text-slate-400">
                                   {recommendation.reason}
                                 </p>
-                                <p className="mt-2 text-cyan-300">
+                                <p className="mt-2 text-orange-300">
                                   {recommendation.action}
                                 </p>
                               </div>
@@ -398,7 +398,7 @@ export default function Home() {
                 )}
 
                 {columns.length > 0 && (
-                  <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/80">
+                  <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
                     <div className="border-b border-slate-800 p-6">
                       <h2 className="text-xl font-medium">Preview table</h2>
                     </div>
@@ -452,7 +452,7 @@ function InputField({
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-cyan-400"
+        className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-orange-400"
       />
     </div>
   );
@@ -460,7 +460,7 @@ function InputField({
 
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 shadow-xl">
       <p className="text-sm text-slate-500">{label}</p>
       <p className="mt-2 text-3xl font-semibold text-slate-100">{value}</p>
     </div>
@@ -480,11 +480,11 @@ function Panel({
     <div
       className={
         accent
-          ? "rounded-3xl border border-cyan-400/30 bg-cyan-400/10 p-6"
-          : "rounded-3xl border border-slate-800 bg-slate-900/80 p-6"
+          ? "rounded-3xl border border-orange-400/30 bg-orange-400/10 p-6"
+          : "rounded-2xl border border-white/10 bg-white/[0.03] p-6"
       }
     >
-      <h2 className={accent ? "text-xl font-medium text-cyan-100" : "text-xl font-medium"}>
+      <h2 className={accent ? "text-xl font-medium text-orange-100" : "text-xl font-medium"}>
         {title}
       </h2>
       <div className="mt-4">{children}</div>
@@ -507,7 +507,7 @@ function StatusCard({ item }: { item: UserReportItem }) {
           <p className="font-medium">{item.question}</p>
           <p className="mt-1 text-sm text-slate-300">{item.answer}</p>
           {item.suggestion && (
-            <p className="mt-2 text-sm text-cyan-300">{item.suggestion}</p>
+            <p className="mt-2 text-sm text-orange-300">{item.suggestion}</p>
           )}
         </div>
       </div>
