@@ -1,7 +1,7 @@
 "use client";
 
 import { postFormData } from "@/lib/api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import {
   Upload,
@@ -99,6 +99,8 @@ type AnalyzeResponse = {
   };
 };
 
+type ApiStatus = "checking" | "ready" | "error";
+
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [separator, setSeparator] = useState(",");
@@ -112,11 +114,32 @@ export default function Home() {
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [apiStatus, setApiStatus] = useState<ApiStatus>("checking");
+
   function resetResults() {
     setPreview(null);
     setAnalysis(null);
     setError(null);
   }
+
+  useEffect(() => {
+    async function checkApiHealth() {
+      try {
+        const response = await fetch("/api/health");
+
+        if (!response.ok) {
+          setApiStatus("error");
+          return;
+        }
+
+        setApiStatus("ready");
+      } catch {
+        setApiStatus("error");
+      }
+    }
+
+    checkApiHealth();
+  }, []);
 
   function handleFileSelection(selectedFile: File | null) {
     setFile(selectedFile);
@@ -266,7 +289,7 @@ export default function Home() {
             <Sparkles className="h-4 w-4" />
             AI Data Report Generator
           </div>
-
+          <ApiStatusBadge status={apiStatus} />
           <div className="max-w-4xl">
             <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">
               Transforme un fichier brut en diagnostic data exploitable.
@@ -844,4 +867,31 @@ function formatColumnType(dtype?: string | null) {
   }
 
   return "Other columns";
+}
+
+function ApiStatusBadge({ status }: { status: ApiStatus }) {
+  if (status === "checking") {
+    return (
+      <div className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-700 bg-slate-900/70 px-4 py-2 text-sm text-slate-300">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        API waking up
+      </div>
+    );
+  }
+
+  if (status === "ready") {
+    return (
+      <div className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-300">
+        <CheckCircle2 className="h-4 w-4" />
+        API ready
+      </div>
+    );
+  }
+
+  return (
+    <div className="inline-flex w-fit items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-300">
+      <AlertTriangle className="h-4 w-4" />
+      API unavailable
+    </div>
+  );
 }
