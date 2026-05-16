@@ -549,42 +549,28 @@ export default function Home() {
                       </ChartCard>
 
                       <ChartCard title="Distribution des types de colonnes">
-                        <ResponsiveContainer width="100%" height={260}>
-                          <PieChart>
-                            <Pie
-                              data={
-                                analysis.chart_data.column_types_distribution
-                              }
-                              dataKey="count"
-                              nameKey="dtype"
-                              outerRadius={95}
-                              label
+                        <div className="grid gap-3">
+                          {analysis.chart_data.column_types_distribution.map((item) => (
+                            <div
+                              key={item.dtype}
+                              className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3"
                             >
-                              {analysis.chart_data.column_types_distribution.map(
-                                (_, index) => (
-                                  <Cell
-                                    key={index}
-                                    fill={
-                                      [
-                                        "#fb923c",
-                                        "#f97316",
-                                        "#facc15",
-                                        "#a3e635",
-                                      ][index % 4]
-                                    }
-                                  />
-                                )
-                              )}
-                            </Pie>
-                            <Tooltip
-                              contentStyle={{
-                                background: "#020617",
-                                border: "1px solid #334155",
-                                borderRadius: "12px",
-                              }}
-                            />
-                          </PieChart>
-                        </ResponsiveContainer>
+                              <div>
+                                <p className="font-medium text-slate-100">
+                                  {formatColumnType(item.dtype)}
+                                </p>
+
+                                <p className="text-xs text-slate-500">
+                                  Raw dtype: {item.dtype}
+                                </p>
+                              </div>
+
+                              <div className="rounded-xl bg-orange-400/10 px-3 py-2 text-lg font-semibold text-orange-200">
+                                {item.count}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </ChartCard>
                     </div>
 
@@ -786,4 +772,24 @@ function ChartCard({
       {children}
     </div>
   );
+}
+
+function formatColumnType(dtype: string) {
+  if (dtype.includes("int") || dtype.includes("float")) {
+    return "Numeric columns";
+  }
+
+  if (dtype.includes("bool")) {
+    return "Boolean columns";
+  }
+
+  if (dtype.includes("datetime")) {
+    return "Date columns";
+  }
+
+  if (dtype.includes("object") || dtype.includes("string")) {
+    return "Text columns";
+  }
+
+  return dtype;
 }
