@@ -550,26 +550,34 @@ export default function Home() {
 
                       <ChartCard title="Distribution des types de colonnes">
                         <div className="grid gap-3">
-                          {analysis.chart_data.column_types_distribution.map((item) => (
-                            <div
-                              key={item.dtype ?? "unknown"}
-                              className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3"
-                            >
-                              <div>
-                                <p className="font-medium text-slate-100">
-                                  {formatColumnType(item.dtype)}
-                                </p>
+                          {analysis.chart_data.column_types_distribution.map((item, index) => {
+                            const rawType =
+                              item.dtype ??
+                              (item as { type?: string }).type ??
+                              (item as { column_type?: string }).column_type ??
+                              "unknown";
 
-                                <p className="text-xs text-slate-500">
-                                  Raw dtype: {item.dtype ?? "unknown"}
-                                </p>
-                              </div>
+                            return (
+                              <div
+                                key={`${rawType}-${index}`}
+                                className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3"
+                              >
+                                <div>
+                                  <p className="font-medium text-slate-100">
+                                    {formatColumnType(rawType)}
+                                  </p>
 
-                              <div className="rounded-xl bg-orange-400/10 px-3 py-2 text-lg font-semibold text-orange-200">
-                                {item.count}
+                                  <p className="text-xs text-slate-500">
+                                    Raw dtype: {rawType}
+                                  </p>
+                                </div>
+
+                                <div className="rounded-xl bg-orange-400/10 px-3 py-2 text-lg font-semibold text-orange-200">
+                                  {item.count}
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </ChartCard>
                     </div>
@@ -775,9 +783,14 @@ function ChartCard({
 }
 
 function formatColumnType(dtype?: string | null) {
-  const normalizedDtype = dtype ?? "unknown";
+  const normalizedDtype = String(dtype ?? "unknown").toLowerCase();
 
-  if (normalizedDtype.includes("int") || normalizedDtype.includes("float")) {
+  if (
+    normalizedDtype.includes("int") ||
+    normalizedDtype.includes("float") ||
+    normalizedDtype.includes("number") ||
+    normalizedDtype.includes("numeric")
+  ) {
     return "Numeric columns";
   }
 
@@ -785,16 +798,20 @@ function formatColumnType(dtype?: string | null) {
     return "Boolean columns";
   }
 
-  if (normalizedDtype.includes("datetime")) {
+  if (
+    normalizedDtype.includes("datetime") ||
+    normalizedDtype.includes("date")
+  ) {
     return "Date columns";
   }
 
   if (
     normalizedDtype.includes("object") ||
-    normalizedDtype.includes("string")
+    normalizedDtype.includes("string") ||
+    normalizedDtype.includes("text")
   ) {
     return "Text columns";
   }
 
-  return "Unknown columns";
+  return "Other columns";
 }

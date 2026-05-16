@@ -20,7 +20,7 @@ def get_dataset_overview(df: pd.DataFrame) -> dict[str, Any]:
         "columns": list(df.columns),
         "memory_usage_mb": float(
             round(df.memory_usage(deep=True).sum() / 1_000_000, 3)
-),
+        ),
     }
 
 
@@ -46,7 +46,11 @@ def get_missing_values_report(df: pd.DataFrame) -> pd.DataFrame:
 def get_duplicate_report(df: pd.DataFrame) -> dict[str, Any]:
     """Return duplicated rows count and percentage."""
     duplicate_count = int(df.duplicated().sum())
-    duplicate_percent = round(duplicate_count / len(df) * 100, 2) if len(df) > 0 else 0
+    duplicate_percent = (
+        round(duplicate_count / len(df) * 100, 2)
+        if len(df) > 0
+        else 0
+    )
 
     return {
         "duplicate_count": duplicate_count,
@@ -69,7 +73,10 @@ def get_column_types(df: pd.DataFrame) -> pd.DataFrame:
         {
             "column": df.columns,
             "dtype": [str(dtype) for dtype in df.dtypes],
-            "unique_values": [int(df[column].nunique(dropna=True)) for column in df.columns],
+            "unique_values": [
+                int(df[column].nunique(dropna=True))
+                for column in df.columns
+            ],
         }
     )
 
@@ -106,7 +113,10 @@ def run_data_quality_checks(df: pd.DataFrame) -> dict[str, Any]:
         recommendations.append(
             {
                 "label": "Analyser les colonnes incomplètes",
-                "reason": "Un taux élevé de valeurs manquantes peut biaiser les analyses.",
+                "reason": (
+                    "Un taux élevé de valeurs manquantes peut biaiser "
+                    "les analyses."
+                ),
                 "action": "Inspecter les colonnes avec missing_percent >= 30.",
             }
         )
@@ -117,14 +127,17 @@ def run_data_quality_checks(df: pd.DataFrame) -> dict[str, Any]:
                 "type": "duplicates",
                 "severity": "warning",
                 "message": (
-                    f"{duplicates['duplicate_count']} ligne(s) dupliquée(s) détectée(s)."
+                    f"{duplicates['duplicate_count']} ligne(s) "
+                    "dupliquée(s) détectée(s)."
                 ),
             }
         )
         recommendations.append(
             {
                 "label": "Traiter les doublons",
-                "reason": "Les lignes dupliquées peuvent fausser les agrégations.",
+                "reason": (
+                    "Les lignes dupliquées peuvent fausser les agrégations."
+                ),
                 "action": "Vérifier puis supprimer les doublons si nécessaire.",
             }
         )
@@ -135,15 +148,21 @@ def run_data_quality_checks(df: pd.DataFrame) -> dict[str, Any]:
                 "type": "constant_columns",
                 "severity": "info",
                 "message": (
-                    f"{len(constant_columns)} colonne(s) constante(s) détectée(s)."
+                    f"{len(constant_columns)} colonne(s) constante(s) "
+                    "détectée(s)."
                 ),
             }
         )
         recommendations.append(
             {
                 "label": "Évaluer les colonnes constantes",
-                "reason": "Une colonne constante apporte rarement de valeur analytique.",
-                "action": "Supprimer ou ignorer ces colonnes dans les analyses.",
+                "reason": (
+                    "Une colonne constante apporte rarement de valeur "
+                    "analytique."
+                ),
+                "action": (
+                    "Supprimer ou ignorer ces colonnes dans les analyses."
+                ),
             }
         )
 
@@ -153,15 +172,17 @@ def run_data_quality_checks(df: pd.DataFrame) -> dict[str, Any]:
     quality_score -= min(20, len(constant_columns) * 5)
     quality_score = max(0, quality_score)
 
+    column_types_distribution = [
+        {
+            "dtype": str(dtype),
+            "count": int(count),
+        }
+        for dtype, count in column_types["dtype"].value_counts().items()
+    ]
+
     chart_data = {
         "missing_values_by_column": missing_values_records,
-        "column_types_distribution": (
-            column_types["dtype"]
-            .value_counts()
-            .reset_index()
-            .rename(columns={"index": "dtype", "dtype": "count"})
-            .to_dict(orient="records")
-        ),
+        "column_types_distribution": column_types_distribution,
     }
 
     return {
