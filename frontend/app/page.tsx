@@ -242,6 +242,16 @@ export default function Home() {
     ? Object.keys(preview.preview_table[0])
     : [];
 
+  const isLikelyWrongSeparator =
+    preview !== null &&
+    preview.dataset_info.columns === 1 &&
+    columns.some((column) =>
+      [",", ";", "|", "\t"].some((separatorCandidate) =>
+        column.includes(separatorCandidate)
+      )
+    );
+
+
   const isBusy = previewLoading || analysisLoading;
 
   return (
@@ -467,6 +477,18 @@ export default function Home() {
                     value={String(preview.dataset_info.missing_cells)}
                   />
                 </div>
+
+                {isLikelyWrongSeparator && (
+                  <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-100">
+                    <p className="font-medium">Possible problème de séparateur CSV détecté.</p>
+                    <p className="mt-1 text-amber-100/80">
+                      Le fichier semble avoir été lu comme une seule colonne. Essaie un autre
+                      séparateur, par exemple <span className="font-semibold">Semicolon</span>{" "}
+                      ou <span className="font-semibold">Comma</span>, puis relance la preview.
+                    </p>
+                  </div>
+                )}
+
 
                 <Panel title="Diagnostic rapide">
                   <div className="grid gap-3">
