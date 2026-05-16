@@ -126,6 +126,33 @@ export default function Home() {
     resetResults();
   }
 
+  async function loadSampleDataset() {
+  setError(null);
+
+  try {
+    const response = await fetch("/samples/customer_quality_sample.csv");
+
+    if (!response.ok) {
+      throw new Error("Impossible de charger le dataset d'exemple.");
+    }
+
+    const blob = await response.blob();
+
+    const sampleFile = new File(
+      [blob],
+      "customer_quality_sample.csv",
+      { type: "text/csv" }
+    );
+
+    setSeparator(";");
+    setEncoding("utf-8");
+    setSkiprows(0);
+    handleFileSelection(sampleFile);
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "Erreur inconnue.");
+  }
+}
+
   const { getRootProps, getInputProps, isDragActive, isDragReject } =
     useDropzone({
       accept: {
@@ -257,6 +284,14 @@ export default function Home() {
                 CSV, XLSX ou XLS
               </span>
             </div>
+
+            <button
+              type="button"
+              onClick={loadSampleDataset}
+              className="mt-3 w-full rounded-xl border border-orange-400/30 bg-orange-400/10 px-5 py-3 text-sm font-medium text-orange-200 transition hover:border-orange-300 hover:bg-orange-400/20"
+            >
+              Use sample dataset
+            </button>
 
             {file && (
               <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">

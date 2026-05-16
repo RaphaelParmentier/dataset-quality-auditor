@@ -1,0 +1,11 @@
+customer_id;age;city;revenue;signup_channel;is_active
+C001;34;Paris;1250.50;organic;true
+C002;28;Lyon;980.00;paid;true
+C003;;Marseille;540.20;referral;false
+C004;45;Paris;;organic;true
+C005;31;Lille;870.10;paid;true
+C005;31;Lille;870.10;paid;true
+C006;52;Bordeaux;1430.00;organic;false
+C007;23;Nantes;320.00;social;true
+C008;;Toulouse;760.75;referral;true
+C009;39;Nice;;paid;false
