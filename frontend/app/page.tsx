@@ -334,11 +334,44 @@ export default function Home() {
             )}
 
             <div className="mt-6 grid gap-4">
-              <InputField
-                label="Séparateur CSV"
-                value={separator}
-                onChange={setSeparator}
-              />
+              <div>
+                <label className="text-sm text-slate-300">Séparateur CSV</label>
+
+                <div className="mt-2 grid grid-cols-4 gap-2">
+                  {[
+                    { label: "Comma", value: "," },
+                    { label: "Semicolon", value: ";" },
+                    { label: "Tab", value: "\t" },
+                    { label: "Pipe", value: "|" },
+                  ].map((option) => (
+                    <button
+                      key={option.label}
+                      type="button"
+                      onClick={() => {
+                        setSeparator(option.value);
+                        resetResults();
+                      }}
+                      className={`rounded-xl border px-3 py-2 text-xs transition ${
+                        separator === option.value
+                          ? "border-orange-400 bg-orange-400/10 text-orange-200"
+                          : "border-slate-700 bg-slate-950 text-slate-400 hover:border-orange-400/60 hover:text-orange-200"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+
+                <input
+                  value={separator === "\t" ? "\\t" : separator}
+                  onChange={(event) => {
+                    const value = event.target.value === "\\t" ? "\t" : event.target.value;
+                    setSeparator(value);
+                    resetResults();
+                  }}
+                  className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                />
+              </div>
 
               <InputField
                 label="Encoding"
