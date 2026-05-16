@@ -552,7 +552,7 @@ export default function Home() {
                         <div className="grid gap-3">
                           {analysis.chart_data.column_types_distribution.map((item) => (
                             <div
-                              key={item.dtype}
+                              key={item.dtype ?? "unknown"}
                               className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3"
                             >
                               <div>
@@ -561,7 +561,7 @@ export default function Home() {
                                 </p>
 
                                 <p className="text-xs text-slate-500">
-                                  Raw dtype: {item.dtype}
+                                  Raw dtype: {item.dtype ?? "unknown"}
                                 </p>
                               </div>
 
@@ -774,22 +774,27 @@ function ChartCard({
   );
 }
 
-function formatColumnType(dtype: string) {
-  if (dtype.includes("int") || dtype.includes("float")) {
+function formatColumnType(dtype?: string | null) {
+  const normalizedDtype = dtype ?? "unknown";
+
+  if (normalizedDtype.includes("int") || normalizedDtype.includes("float")) {
     return "Numeric columns";
   }
 
-  if (dtype.includes("bool")) {
+  if (normalizedDtype.includes("bool")) {
     return "Boolean columns";
   }
 
-  if (dtype.includes("datetime")) {
+  if (normalizedDtype.includes("datetime")) {
     return "Date columns";
   }
 
-  if (dtype.includes("object") || dtype.includes("string")) {
+  if (
+    normalizedDtype.includes("object") ||
+    normalizedDtype.includes("string")
+  ) {
     return "Text columns";
   }
 
-  return dtype;
+  return "Unknown columns";
 }
