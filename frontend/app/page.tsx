@@ -521,7 +521,7 @@ export default function Home() {
                 {analysis && (
                   <Panel title="Analyse qualité visuelle">
                     <div className="grid gap-6 lg:grid-cols-2">
-                      <ChartCard title="Valeurs manquantes par colonne">
+                      <ChartCard title="Pourcentage de valeurs manquantes par colonne">
                         <ResponsiveContainer width="100%" height={260}>
                           <BarChart
                             data={analysis.chart_data.missing_values_by_column}
@@ -531,19 +531,23 @@ export default function Home() {
                               stroke="#1e293b"
                             />
                             <XAxis dataKey="column" stroke="#94a3b8" />
-                            <YAxis stroke="#94a3b8" />
+                            <YAxis
+                              stroke="#94a3b8"
+                              tickFormatter={(value) => `${value}%`}
+                            />
                             <Tooltip
+                              formatter={(value: number) => [`${value}%`, "Missing values"]}
                               contentStyle={{
                                 background: "#020617",
                                 border: "1px solid #334155",
                                 borderRadius: "12px",
                               }}
                             />
-                            <Bar
-                              dataKey="missing_percent"
-                              fill="#fb923c"
-                              radius={[8, 8, 0, 0]}
-                            />
+                          <Bar
+                            dataKey="missing_count"
+                            fill="#fb923c"
+                            radius={[8, 8, 0, 0]}
+                          />
                           </BarChart>
                         </ResponsiveContainer>
                       </ChartCard>
