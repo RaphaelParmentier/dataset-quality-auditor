@@ -14,3 +14,23 @@ export async function postFormData<T>(
 
   return response.json();
 }
+
+export async function postJson<T>(
+  endpoint: string,
+  payload: unknown
+): Promise<T> {
+  const response = await fetch(`/api${endpoint}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorPayload = await response.json().catch(() => null);
+    throw new Error(errorPayload?.detail ?? "Erreur API inconnue.");
+  }
+
+  return response.json();
+}

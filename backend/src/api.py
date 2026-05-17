@@ -1,6 +1,8 @@
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.ai_insights import generate_ai_insights
+
 from src.data_loader import (
     get_available_excel_sheets,
     get_file_type,
@@ -157,3 +159,27 @@ async def analyze_dataset(
 
     except Exception as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
+    
+    @app.post("/ai-insights", tags=["AI Insights"])
+async def ai_insights(payload: dict):
+    try:
+        analysis = payload.get("analysis")
+
+        if not analysis:
+            raise HTTPException(
+                status_code=400,
+                detail="Missing analysis payload.",
+            )
+
+        insights = generate_ai_insights(analysis)
+
+        return {
+            "status": "ok",
+            "insights": insights,
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=str(error)) from error

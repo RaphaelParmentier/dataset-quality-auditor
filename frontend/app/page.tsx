@@ -1,6 +1,6 @@
 "use client";
 
-import { postFormData } from "@/lib/api";
+import { postFormData, postJson } from "@/lib/api";
 import { downloadAnalysisReport } from "@/lib/report";
 import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
@@ -33,6 +33,20 @@ type SheetsResponse = {
   file_type: string;
   sheets: string[];
   message?: string;
+};
+
+type AiInsights = {
+  executive_summary: string;
+  risk_level: "low" | "medium" | "high";
+  business_impact: string;
+  key_findings: string[];
+  priority_actions: string[];
+  technical_notes: string[];
+};
+
+type AiInsightsResponse = {
+  status: "ok";
+  insights: AiInsights;
 };
 
 type AnalyzeApiResponse = {
@@ -77,7 +91,7 @@ type PreviewResponse = {
   preview_table: Record<string, string | number | null>[];
 };
 
-export type AnalyzeResponse = {
+type AnalyzeResponse = {
   status: "ok" | "warning";
   quality_score: number;
   quality_summary: {
@@ -121,10 +135,13 @@ export default function Home() {
 
   const [preview, setPreview] = useState<PreviewResponse | null>(null);
   const [analysis, setAnalysis] = useState<AnalyzeResponse | null>(null);
+  const [aiInsights, setAiInsights] = useState<AiInsights | null>(null);
 
   const [previewLoading, setPreviewLoading] = useState(false);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [sheetsLoading, setSheetsLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+
   const [apiStatus, setApiStatus] = useState<ApiStatus>("checking");
   const [error, setError] = useState<string | null>(null);
 
@@ -150,6 +167,7 @@ export default function Home() {
   function resetResults() {
     setPreview(null);
     setAnalysis(null);
+    setAiInsights(null);
     setError(null);
   }
 
@@ -204,6 +222,7 @@ export default function Home() {
       setSheets([]);
       setPreview(null);
       setAnalysis(null);
+      setAiInsights(null);
       setError(
         `Fichier trop volumineux. Taille maximale autorisée : ${MAX_FILE_SIZE_MB} MB.`
       );
@@ -224,6 +243,7 @@ export default function Home() {
     setError(null);
     setPreview(null);
     setAnalysis(null);
+    setAiInsights(null);
     setSheets([]);
     setSheetName(null);
     setPreviewLoading(true);
@@ -315,6 +335,7 @@ export default function Home() {
     setError(null);
     setPreview(null);
     setAnalysis(null);
+    setAiInsights(null);
 
     try {
       const data = await postFormData<PreviewResponse>(
@@ -334,6 +355,7 @@ export default function Home() {
     setAnalysisLoading(true);
     setError(null);
     setAnalysis(null);
+    setAiInsights(null);
 
     try {
       const data = await postFormData<AnalyzeApiResponse>(
@@ -346,6 +368,25 @@ export default function Home() {
       setError(err instanceof Error ? err.message : "Erreur inconnue.");
     } finally {
       setAnalysisLoading(false);
+    }
+  }
+
+  async function handleGenerateAiInsights() {
+    if (!analysis) return;
+
+    setAiLoading(true);
+    setError(null);
+
+    try {
+      const data = await postJson<AiInsightsResponse>("/ai-insights", {
+        analysis,
+      });
+
+      setAiInsights(data.insights);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur IA inconnue.");
+    } finally {
+      setAiLoading(false);
     }
   }
 
@@ -362,7 +403,7 @@ export default function Home() {
       )
     );
 
-  const isBusy = previewLoading || analysisLoading || sheetsLoading;
+  const isBusy = previewLoading || analysisLoading || sheetsLoading || aiLoading;
 
   return (
     <main className="min-h-screen bg-[#090909] text-neutral-100">
@@ -371,7 +412,7 @@ export default function Home() {
           <div className="flex flex-wrap gap-3">
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-orange-400/30 bg-orange-400/10 px-4 py-2 text-sm text-orange-200">
               <Sparkles className="h-4 w-4" />
-              AI Data Report Generator
+              AI-assisted Data Quality Auditor
             </div>
 
             <ApiStatusBadge status={apiStatus} />
@@ -379,11 +420,11 @@ export default function Home() {
 
           <div className="max-w-4xl">
             <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">
-              Transforme un fichier brut en diagnostic data exploitable.
+              Auditez automatiquement la qualité de vos fichiers CSV et Excel.
             </h1>
             <p className="mt-4 text-lg text-slate-400">
-              Upload CSV ou Excel, vérifie la lecture, détecte les problèmes,
-              puis génère une analyse qualité visuelle.
+              Inspectez la structure, les valeurs manquantes, les doublons et
+              les incohérences pour générer un diagnostic data exploitable.
             </p>
           </div>
         </header>
@@ -615,7 +656,7 @@ export default function Home() {
               {analysisLoading ? "Running full analysis..." : "Run full analysis"}
             </button>
 
-            {(previewLoading || analysisLoading) && (
+            {(previewLoading || analysisLoading || aiLoading) && (
               <div className="mt-4 rounded-xl border border-orange-400/20 bg-orange-400/10 p-4 text-sm text-orange-100">
                 The hosted API may take up to 60 seconds to wake up on the free
                 tier. This is expected on the first request.
@@ -730,7 +771,7 @@ export default function Home() {
 
                 {analysis && (
                   <Panel title="Analyse qualité visuelle">
-                    <div className="mb-6 flex justify-end">
+                    <div className="mb-6 flex flex-wrap justify-end gap-3">
                       <button
                         type="button"
                         onClick={() =>
@@ -745,9 +786,20 @@ export default function Home() {
                             analysis,
                           })
                         }
-                        className="rounded-xl border border-orange-400/30 bg-orange-400/10 px-4 py-2 text-sm font-medium text-orange-200 transition hover:border-orange-300 hover:bg-orange-400/20"
+                        className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-orange-400 hover:text-orange-200"
                       >
-                        Download JSON report
+                        Download JSON
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleGenerateAiInsights}
+                        disabled={aiLoading || !analysis}
+                        className="rounded-xl border border-violet-400/30 bg-violet-400/10 px-4 py-2 text-sm font-medium text-violet-200 transition hover:border-violet-300 hover:bg-violet-400/20 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {aiLoading
+                          ? "Generating AI insights..."
+                          : "Generate AI insights"}
                       </button>
                     </div>
 
@@ -810,6 +862,52 @@ export default function Home() {
                         </div>
                       </ChartCard>
                     </div>
+
+                    {aiInsights && (
+                      <div className="mt-6">
+                        <Panel title="AI audit insights" accent>
+                          <div className="grid gap-4">
+                            <div className="rounded-2xl bg-slate-950/70 p-4">
+                              <p className="text-sm uppercase tracking-[0.2em] text-violet-300">
+                                Executive summary
+                              </p>
+                              <p className="mt-2 text-slate-200">
+                                {aiInsights.executive_summary}
+                              </p>
+                            </div>
+
+                            <div className="rounded-2xl bg-slate-950/70 p-4">
+                              <p className="text-sm uppercase tracking-[0.2em] text-violet-300">
+                                Risk level
+                              </p>
+                              <p className="mt-2 text-slate-200">
+                                {aiInsights.risk_level}
+                              </p>
+                            </div>
+
+                            <div className="rounded-2xl bg-slate-950/70 p-4">
+                              <p className="text-sm uppercase tracking-[0.2em] text-violet-300">
+                                Business impact
+                              </p>
+                              <p className="mt-2 text-slate-200">
+                                {aiInsights.business_impact}
+                              </p>
+                            </div>
+
+                            <div className="grid gap-4 lg:grid-cols-2">
+                              <AiList
+                                title="Key findings"
+                                items={aiInsights.key_findings}
+                              />
+                              <AiList
+                                title="Priority actions"
+                                items={aiInsights.priority_actions}
+                              />
+                            </div>
+                          </div>
+                        </Panel>
+                      </div>
+                    )}
 
                     <div className="mt-6 grid gap-4 lg:grid-cols-2">
                       <div>
@@ -1033,6 +1131,29 @@ function ApiStatusBadge({ status }: { status: ApiStatus }) {
     <div className="inline-flex w-fit items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-300">
       <AlertTriangle className="h-4 w-4" />
       API unavailable
+    </div>
+  );
+}
+
+function AiList({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div className="rounded-2xl bg-slate-950/70 p-4">
+      <p className="text-sm uppercase tracking-[0.2em] text-violet-300">
+        {title}
+      </p>
+
+      {items.length === 0 ? (
+        <p className="mt-2 text-sm text-slate-400">No item generated.</p>
+      ) : (
+        <ul className="mt-3 grid gap-2 text-sm text-slate-300">
+          {items.map((item) => (
+            <li key={item} className="flex gap-2">
+              <span className="text-violet-300">•</span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

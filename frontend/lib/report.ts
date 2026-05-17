@@ -1,5 +1,3 @@
-import type { AnalyzeResponse } from "@/app/page";
-
 type DownloadAnalysisReportParams = {
   filename: string;
   sheetName: string | null;
@@ -8,7 +6,7 @@ type DownloadAnalysisReportParams = {
     encoding: string;
     skiprows: number;
   };
-  analysis: AnalyzeResponse;
+  analysis: unknown;
 };
 
 export function downloadAnalysisReport({
