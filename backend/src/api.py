@@ -160,7 +160,7 @@ async def analyze_dataset(
     except Exception as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
     
-    @app.post("/ai-insights", tags=["AI Insights"])
+@app.post("/ai-insights", tags=["AI Insights"])
 async def ai_insights(payload: dict):
     try:
         analysis = payload.get("analysis")
