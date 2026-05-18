@@ -1,7 +1,10 @@
 "use client";
 
 import { postFormData, postJson } from "@/lib/api";
-import { downloadAnalysisReport } from "@/lib/report";
+import {
+  downloadAnalysisReport,
+  downloadHtmlAuditReport,
+} from "@/lib/report";
 import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import {
@@ -789,6 +792,26 @@ export default function Home() {
                         className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-orange-400 hover:text-orange-200"
                       >
                         Download JSON
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          downloadHtmlAuditReport({
+                            filename: file?.name ?? "unknown_file",
+                            sheetName,
+                            loadingOptions: {
+                              separator,
+                              encoding,
+                              skiprows,
+                            },
+                            analysis,
+                            aiInsights,
+                          })
+                        }
+                        className="rounded-xl border border-orange-400/30 bg-orange-400/10 px-4 py-2 text-sm font-medium text-orange-200 transition hover:border-orange-300 hover:bg-orange-400/20"
+                      >
+                        Download HTML report
                       </button>
 
                       <button
