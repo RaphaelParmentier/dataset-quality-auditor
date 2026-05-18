@@ -1,47 +1,82 @@
-# AI Data Report Generator
+# AI Data Quality Auditor
 
-Industrial-grade dataset inspection and quality analysis platform built with FastAPI, Next.js and Pandas.
+AI-assisted platform for auditing CSV and Excel datasets through deterministic quality checks, visual diagnostics and executive reporting workflows.
 
-Designed to transform raw CSV or Excel files into actionable data diagnostics with interactive visual analysis.
-
-![Next.js](https://img.shields.io/badge/Next.js-15-black)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688)
-![Python](https://img.shields.io/badge/Python-3.12-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
-![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-150458)
+Built with a modern full-stack architecture using Next.js, FastAPI and Gemini AI.
 
 ---
 
 ## Overview
 
-This project provides:
+AI Data Quality Auditor is designed to help analysts, consultants and data teams quickly inspect raw datasets before analysis or reporting workflows.
 
-- CSV / Excel upload
-- Dataset preview
-- Data quality scoring
-- Missing values analysis
-- Duplicate detection
-- Column type inspection
-- Interactive charts
-- Actionable recommendations
-- FastAPI backend API
-- Next.js frontend dashboard
+The platform combines:
 
-The goal is to simulate a real-world industrial AI/data quality inspection workflow.
+- deterministic data quality validation
+- visual diagnostics
+- AI-generated audit insights
+- standalone HTML executive reports
+
+The objective is to bridge the gap between:
+- raw operational datasets
+- data quality auditing
+- business-readable reporting
 
 ---
 
-## Demo
+## Core Features
 
-### Dataset inspection dashboard
+### Dataset ingestion
 
-> Add screenshots here
+- CSV support
+- Excel support (`.xlsx`, `.xls`)
+- multi-sheet handling
+- configurable separators
+- configurable encoding
+- skip rows support
 
-- Upload datasets
-- Inspect parsing issues
-- Run quality analysis
-- Visualize missing values
-- Detect structural problems
+### Deterministic data audit
+
+Automated checks include:
+
+- missing values detection
+- duplicate row detection
+- constant column detection
+- schema profiling
+- dataset scoring
+- memory usage analysis
+
+### Visual diagnostics
+
+Interactive frontend visualizations:
+
+- missing value charts
+- column type distribution
+- quality score indicators
+- issue and recommendation panels
+
+### AI audit layer
+
+Optional Gemini-powered interpretation layer:
+
+- executive summary generation
+- business impact analysis
+- priority action recommendations
+- technical audit observations
+
+The AI layer is isolated from the deterministic engine to ensure:
+- transparency
+- reproducibility
+- controlled AI usage
+
+### Executive reporting
+
+Exportable standalone reports:
+
+- JSON audit export
+- premium HTML audit report
+- embedded SVG charts
+- printable PDF-compatible layout
 
 ---
 
@@ -49,12 +84,11 @@ The goal is to simulate a real-world industrial AI/data quality inspection workf
 
 ### Frontend
 
-- Next.js 15
-- React
+- Next.js 16
 - TypeScript
 - TailwindCSS
 - Recharts
-- Lucide Icons
+- Lucide React
 
 ### Backend
 
@@ -63,185 +97,35 @@ The goal is to simulate a real-world industrial AI/data quality inspection workf
 - OpenPyXL
 - Uvicorn
 
+### AI
+
+- Gemini 2.5 Flash Lite
+- Structured JSON prompting
+- Controlled response parsing
+
+### Deployment
+
+- Vercel (frontend)
+- Render (backend)
+
 ---
 
 ## Architecture
 
 ```txt
 frontend/
- ├── app/
- ├── components/
- ├── lib/
- └── public/
+├── app/
+├── components/
+├── lib/
+│   └── report/
+│       ├── htmlReport.ts
+│       ├── svgCharts.ts
+│       ├── reportUtils.ts
+│       └── reportTypes.ts
 
 backend/
- ├── src/
- │   ├── api.py
- │   ├── data_loader.py
- │   └── data_quality.py
- └── requirements.txt
-```
-
----
-
-## API Endpoints
-
-### Preview dataset
-
-```http
-POST /preview
-```
-
-Returns:
-
-- dataset structure
-- parsing diagnostics
-- preview table
-- recommendations
-
-### Run analysis
-
-```http
-POST /analyze
-```
-
-Returns:
-
-- quality score
-- missing values
-- duplicate analysis
-- chart data
-- recommendations
-
----
-
-## Local Installation
-
-### Clone repository
-
-```bash
-git clone https://github.com/RaphaelParmentier/ai-data-report-generator.git
-cd ai-data-report-generator
-```
-
----
-
-### Backend setup
-
-```bash
-cd backend
-
-python -m venv .venv
-source .venv/bin/activate
-```
-
-Windows:
-
-```bash
-.venv\Scripts\activate
-```
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Run API:
-
-```bash
-uvicorn src.api:app --reload
-```
-
-API available at:
-
-```txt
-http://127.0.0.1:8000
-```
-
-Swagger docs:
-
-```txt
-http://127.0.0.1:8000/docs
-```
-
----
-
-### Frontend setup
-
-```bash
-cd frontend
-
-npm install
-```
-
-Create:
-
-```txt
-.env.local
-```
-
-With:
-
-```env
-NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
-```
-
-Run frontend:
-
-```bash
-npm run dev
-```
-
-Frontend available at:
-
-```txt
-http://localhost:3000
-```
-
----
-
-## Current Features
-
-- [x] CSV parsing
-- [x] Excel parsing
-- [x] Dataset preview
-- [x] Quality scoring
-- [x] Missing values analysis
-- [x] Duplicate detection
-- [x] Interactive visual dashboard
-- [x] FastAPI backend
-- [x] Next.js frontend
-
----
-
-## Roadmap
-
-- [ ] Automatic CSV separator detection
-- [ ] PDF report generation
-- [ ] LLM-powered recommendations
-- [ ] Dataset profiling export
-- [ ] Authentication
-- [ ] Async background processing
-- [ ] Cloud deployment
-
----
-
-## Author
-
-### Raphaël Parmentier
-
-AI Consultant · Data Scientist · Former Pharma Biostatistician
-
-Focused on:
-- AI Engineering
-- Data Science
-- Applied AI products
-- Automation systems
-- Industrial AI workflows
-
-Portfolio:
-- https://raphael-portfolio-two.vercel.app
-
-LinkedIn:
-- Add your LinkedIn URL here
+├── src/
+│   ├── api.py
+│   ├── ai_insights.py
+│   ├── data_loader.py
+│   └── data_quality.py
