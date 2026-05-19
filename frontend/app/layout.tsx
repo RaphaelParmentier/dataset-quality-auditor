@@ -13,34 +13,45 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://audit.raphaelparmentier.dev"),
+
   title: "AI Data Quality Auditor",
+
   description:
     "AI-assisted platform for automated dataset validation, inspection and reporting workflows.",
 
   openGraph: {
     title: "AI Data Quality Auditor",
+
     description:
       "Production-oriented AI platform for automated dataset validation and analytical workflows.",
+
     url: "https://audit.raphaelparmentier.dev",
+
     siteName: "AI Data Quality Auditor",
+
     images: [
       {
-        url: "/images/og-audit.png",
+        url: "/images/og-audit.jpg",
         width: 1200,
         height: 630,
         alt: "AI Data Quality Auditor",
       },
     ],
+
     locale: "en_US",
     type: "website",
   },
 
   twitter: {
     card: "summary_large_image",
+
     title: "AI Data Quality Auditor",
+
     description:
       "AI-assisted platform for automated dataset validation and reporting workflows.",
-    images: ["/images/og-audit.png"],
+
+    images: ["/images/og-audit.jpg"],
   },
 };
 
@@ -54,7 +65,9 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+      </body>
     </html>
   );
 }
