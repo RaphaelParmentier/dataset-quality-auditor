@@ -148,7 +148,18 @@ async def analyze_dataset(
             encoding=encoding,
         )
 
-        return run_data_quality_checks(df)
+        report = run_data_quality_checks(df)
+
+        return {
+            "filename": filename,
+            "sheet_name": sheet_name,
+            "loading_options": {
+                "separator": separator,
+                "encoding": encoding,
+                "skiprows": skiprows,
+            },
+            "analysis": report,
+        }
 
     except Exception as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
