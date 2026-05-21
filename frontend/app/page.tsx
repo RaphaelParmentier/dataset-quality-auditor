@@ -203,7 +203,7 @@ export default function Home() {
       setError(
         err instanceof Error
           ? err.message
-          : "Impossible de lire les feuilles Excel."
+          : "Unable to read Excel sheets."
       );
     } finally {
       setSheetsLoading(false);
@@ -227,7 +227,7 @@ export default function Home() {
       setAnalysis(null);
       setAiInsights(null);
       setError(
-        `Fichier trop volumineux. Taille maximale autorisée : ${MAX_FILE_SIZE_MB} MB.`
+        `File too large. Maximum allowed size: ${MAX_FILE_SIZE_MB} MB.`
       );
       return;
     }
@@ -255,7 +255,7 @@ export default function Home() {
       const response = await fetch(samplePath);
 
       if (!response.ok) {
-        throw new Error("Impossible de charger le dataset d'exemple.");
+        throw new Error("Unable to load the sample dataset.");
       }
 
       const blob = await response.blob();
@@ -280,7 +280,7 @@ export default function Home() {
 
       setPreview(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur inconnue.");
+      setError(err instanceof Error ? err.message : "Unknown error.");
     } finally {
       setPreviewLoading(false);
     }
@@ -306,18 +306,18 @@ export default function Home() {
 
         if (firstError?.code === "file-too-large") {
           setError(
-            `Fichier trop volumineux. Taille maximale autorisée : ${MAX_FILE_SIZE_MB} MB.`
+            `File too large. Maximum allowed size: ${MAX_FILE_SIZE_MB} MB.`
           );
           return;
         }
 
-        setError("Format non supporté. Utilise un fichier CSV, XLS ou XLSX.");
+        setError("Unsupported format. Please use a CSV, XLS or XLSX file.");
       },
     });
 
   function buildFormData() {
     if (!file) {
-      throw new Error("Ajoute un fichier avant de lancer l’analyse.");
+      throw new Error("Upload a file before running the analysis.");
     }
 
     const formData = new FormData();
@@ -348,7 +348,7 @@ export default function Home() {
 
       setPreview(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur inconnue.");
+      setError(err instanceof Error ? err.message : "Unknown error.");
     } finally {
       setPreviewLoading(false);
     }
@@ -368,7 +368,7 @@ export default function Home() {
 
       setAnalysis(data.analysis);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur inconnue.");
+      setError(err instanceof Error ? err.message : "Unknown error.");
     } finally {
       setAnalysisLoading(false);
     }
@@ -387,7 +387,7 @@ export default function Home() {
 
       setAiInsights(data.insights);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur IA inconnue.");
+      setError(err instanceof Error ? err.message : "Unknown AI error.");
     } finally {
       setAiLoading(false);
     }
@@ -415,7 +415,7 @@ export default function Home() {
           <div className="flex flex-wrap gap-3">
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-orange-400/30 bg-orange-400/10 px-4 py-2 text-sm text-orange-200">
               <Sparkles className="h-4 w-4" />
-              AI-assisted Data Quality Auditor
+              AI Dataset Auditor
             </div>
 
             <ApiStatusBadge status={apiStatus} />
@@ -423,11 +423,10 @@ export default function Home() {
 
           <div className="max-w-4xl">
             <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">
-              Auditez automatiquement la qualité de vos fichiers CSV et Excel.
+              Automated dataset quality auditing for CSV and Excel files.
             </h1>
             <p className="mt-4 text-lg text-slate-400">
-              Inspectez la structure, les valeurs manquantes, les doublons et
-              les incohérences pour générer un diagnostic data exploitable.
+              Inspect structure, detect quality issues, generate recommendations and create professional audit reports in seconds.
             </p>
           </div>
         </header>
@@ -436,7 +435,7 @@ export default function Home() {
           <aside className="h-fit rounded-2xl border border-white/10 bg-white/[0.03] p-6 shadow-2xl">
             <h2 className="text-xl font-medium">Dataset upload</h2>
             <p className="mt-2 text-sm text-slate-400">
-              Glisse-dépose un fichier ou utilise le sélecteur classique.
+              Drag and drop a file or use the file picker.
             </p>
 
             <div
@@ -457,12 +456,12 @@ export default function Home() {
                 {file
                   ? file.name
                   : isDragActive
-                    ? "Dépose le fichier ici"
-                    : "Drag & drop ou clique pour upload"}
+                    ? "Drop the file here"
+                    : "Drag & drop or click to upload"}
               </span>
 
               <span className="mt-1 text-xs text-slate-500">
-                CSV, XLSX ou XLS · max {MAX_FILE_SIZE_MB} MB
+                CSV, XLSX or XLS · max {MAX_FILE_SIZE_MB} MB
               </span>
             </div>
 
@@ -517,7 +516,7 @@ export default function Home() {
 
             <div className="mt-6 grid gap-4">
               <div>
-                <label className="text-sm text-slate-300">Séparateur CSV</label>
+                <label className="text-sm text-slate-300">CSV delimiter</label>
 
                 <div className="mt-2 grid grid-cols-4 gap-2">
                   {[
@@ -596,7 +595,7 @@ export default function Home() {
 
               {sheetsLoading && (
                 <div className="rounded-xl border border-orange-400/20 bg-orange-400/10 p-3 text-sm text-orange-100">
-                  Lecture des feuilles Excel...
+                  Loading Excel sheets...
                 </div>
               )}
 
@@ -694,13 +693,12 @@ export default function Home() {
 
                   <p className="text-lg font-medium text-slate-300">
                     {isBusy
-                      ? "Analyse du dataset en cours..."
-                      : "Aucun dataset analysé pour le moment"}
+                      ? "Dataset analysis in progress..."
+                      : "No dataset analyzed yet"}
                   </p>
 
                   <p className="mt-2 text-sm leading-6 text-slate-500">
-                    Ajoute un fichier CSV ou Excel, vérifie les paramètres de
-                    lecture, puis lance la prévisualisation.
+                    Upload a CSV or Excel file, review the loading options, then launch the preview.
                   </p>
                 </div>
               </div>
@@ -730,11 +728,10 @@ export default function Home() {
                 {isLikelyWrongSeparator && (
                   <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-100">
                     <p className="font-medium">
-                      Possible problème de séparateur CSV détecté.
+                      Potential CSV delimiter issue detected.
                     </p>
                     <p className="mt-1 text-amber-100/80">
-                      Le fichier semble avoir été lu comme une seule colonne.
-                      Essaie un autre séparateur, par exemple{" "}
+                      The dataset appears to have been parsed as a single column. Try another delimiter, for example{" "}
                       <span className="font-semibold">Semicolon</span> ou{" "}
                       <span className="font-semibold">Comma</span>, puis relance
                       la preview.
@@ -742,7 +739,7 @@ export default function Home() {
                   </div>
                 )}
 
-                <Panel title="Diagnostic rapide">
+                <Panel title="Quick Assessment">
                   <div className="grid gap-3">
                     {preview.user_report.map((item) => (
                       <StatusCard key={item.question} item={item} />
@@ -751,7 +748,7 @@ export default function Home() {
                 </Panel>
 
                 {preview.recommended_actions.length > 0 && (
-                  <Panel title="Actions recommandées" accent>
+                  <Panel title="Recommended Actions" accent>
                     <div className="grid gap-3">
                       {preview.recommended_actions.map((action) => (
                         <div
@@ -773,7 +770,7 @@ export default function Home() {
                 )}
 
                 {analysis && (
-                  <Panel title="Analyse qualité visuelle">
+                  <Panel title="Data Quality Analysis">
                     <div className="mb-6 flex flex-wrap justify-end gap-3">
                       <button
                         type="button"
@@ -827,7 +824,7 @@ export default function Home() {
                     </div>
 
                     <div className="grid gap-6 lg:grid-cols-2">
-                      <ChartCard title="Nombre de valeurs manquantes par colonne">
+                      <ChartCard title="Missing Values by Column">
                         <ResponsiveContainer width="100%" height={260}>
                           <BarChart
                             data={analysis.chart_data.missing_values_by_column}
@@ -855,7 +852,7 @@ export default function Home() {
                         </ResponsiveContainer>
                       </ChartCard>
 
-                      <ChartCard title="Distribution des types de colonnes">
+                      <ChartCard title="Column Type Distribution">
                         <div className="grid gap-3">
                           {analysis.chart_data.column_types_distribution.map(
                             (item, index) => {
@@ -934,11 +931,11 @@ export default function Home() {
 
                     <div className="mt-6 grid gap-4 lg:grid-cols-2">
                       <div>
-                        <h3 className="font-medium">Issues détectées</h3>
+                        <h3 className="font-medium">Detected Issues</h3>
                         <div className="mt-3 grid gap-3">
                           {analysis.issues.length === 0 ? (
                             <p className="text-sm text-emerald-300">
-                              Aucun problème qualité majeur détecté.
+                              No major data quality issue detected.
                             </p>
                           ) : (
                             analysis.issues.map((issue) => (
@@ -954,11 +951,11 @@ export default function Home() {
                       </div>
 
                       <div>
-                        <h3 className="font-medium">Recommandations</h3>
+                        <h3 className="font-medium">Recommendations</h3>
                         <div className="mt-3 grid gap-3">
                           {analysis.recommendations.length === 0 ? (
                             <p className="text-sm text-slate-400">
-                              Aucune recommandation critique.
+                              No critical recommendation.
                             </p>
                           ) : (
                             analysis.recommendations.map((recommendation) => (
